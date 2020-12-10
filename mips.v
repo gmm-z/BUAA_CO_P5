@@ -199,17 +199,20 @@ module mips(clk,reset);
 			.ALUSrc(E_ALUSrc), 
 			.ALU_SELECT(E_ALU_SELECT)
 		);	
+		wire [31:0]EX_RD2_o_forward;
 		
 		MUX_ALUSrc E_MUX_ALUSrc (
 			 .ALUSrc(E_ALUSrc), 
-			 .RD2(EX_RD2_o), 
+			 .RD2(EX_RD2_o_forward), 
 			 .EXTout(EX_EXTout_o), 
 			 .ALU_IN(E_ALU_IN)
 		);
 		
 		wire [31:0] E_ALUout;
+		wire [31:0] EX_RD1_o_forward;
+	
 		ALU ALU (
-			.A(EX_RD1_o), 
+			.A(EX_RD1_o_forward), 
 			.B(E_ALU_IN), 
 			.ALU_SELECT(E_ALU_SELECT), 
 			.ALU_RESULT(E_ALUout)
@@ -235,7 +238,7 @@ module mips(clk,reset);
 		assign EX_PC4_i = EX_PC4_o;
 		assign EX_PC8_i = EX_PC8_o;
 		assign EX_ALUout_i = E_ALUout;
-		assign EX_RT_i = EX_RD2_o;
+		assign EX_RT_i = EX_RD2_o_forward;
 		assign EX_RegAddr_i = EX_RegAddr_o;
 		
 		EXtoMEM EXtoMEM (
@@ -277,14 +280,14 @@ module mips(clk,reset);
 		
 		assign M_MemAddr = MEM_ALUout_o;
 		assign M_MemData = MEM_RT_o;
-		
+		wire [31:0]M_MemData_forward;
 		DM DM (
 			.clk(clk), 
 			.reset(reset), 
 			.MemWrite(M_MemWrite), 
 			.MemRead(M_MemRead), 
 			.MemAddr(M_MemAddr), 
-			.MemData(M_MemData), 
+			.MemData(M_MemData_forward), 
 			.PC(MEM_PC_o), 
 			.MemOut(M_MemOut)
 		);
@@ -389,8 +392,14 @@ forward_RD1 forward_RD1(
     .W_RegData(W_RegData), 
     .W_RegWrite(W_RegWrite), 
     .MEM_PC8_o(MEM_PC8_o), 
+	 .EX_RD1_o(EX_RD1_o),
+	 .EX_RD2_o(EX_RD2_o),
+	 .M_MemData(M_MemData),
     .D_RD1_forward(D_RD1_forward),
-	 .D_RD2_forward(D_RD2_forward)
+	 .D_RD2_forward(D_RD2_forward),
+	 .EX_RD1_o_forward(EX_RD1_o_forward),
+	 .EX_RD2_o_forward(EX_RD2_o_forward),
+	 .M_MemData_forward(M_MemData_forward)
     );
 		
 endmodule
