@@ -40,6 +40,7 @@ module MEMtoWB(
 
 	 initial begin
 		WB_Instr_o <= 0;
+		WB_RegAddr_o <= 0;
 	 end
 	 
 	 always@(posedge clk)begin

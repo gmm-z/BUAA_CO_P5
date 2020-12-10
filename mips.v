@@ -26,6 +26,8 @@ module mips(clk,reset);
 		wire [31:0] IN_PC;
 		wire [31:0] IF_PC_i;
 		wire [31:0] IF_Instr_i;
+		wire [31:0] IF_PC_i_4;
+		assign IF_PC_i_4 = IF_PC_i + 4;
 		
 		wire [31:0] ID_PC_o;
 		wire [31:0] ID_Instr_o;
@@ -69,9 +71,12 @@ module mips(clk,reset);
 		assign D_rt = ID_Instr_o[20:16];
 		assign D_rd = ID_Instr_o[15:11];
 	
+		wire [31:0] D_RD1_forward;
 		wire [31:0] D_RD1;
+		wire [31:0] D_RD2_forward;
 		wire [31:0] D_RD2;
 		
+		//assign D_RD1_forward = D_RD1;  // <----------------------------
 		wire [31:0] W_RegData;
 		wire W_RegWrite;
 		wire [4:0]WB_RegAddr_o;
@@ -111,8 +116,8 @@ module mips(clk,reset);
 		assign ID_PC_i = ID_PC_o;
 		assign ID_PC4_i = ID_PC4_o;
 		assign ID_PC8_i = ID_PC8_o;
-		assign ID_RD1_i = D_RD1;
-		assign ID_RD2_i = D_RD2;
+		assign ID_RD1_i = D_RD1_forward;
+		assign ID_RD2_i = D_RD2_forward;
 		
 		wire [1:0] D_RegDst;
 		wire D_EXTop;
@@ -141,8 +146,8 @@ module mips(clk,reset);
 		wire isEqual;
 		
 		ALU D_CMP (
-			 .A(D_RD1), 
-			 .B(D_RD2), 
+			 .A(D_RD1_forward), 
+			 .B(D_RD2_forward), 
 			 .isEqual(isEqual)
 		 );
 		 
@@ -358,15 +363,34 @@ module mips(clk,reset);
 	
 		
 		nPC nPC (
-			.PC4(ID_PC4_o), 
+			.PC4(IF_PC_i_4), 
 			.PC_BEQ(PC_BEQ), 
 			.PC_JAL(PC_JAL), 
-			.RD1(D_RD1), 
+			.RD1(D_RD1_forward), 
 			.IN_PC(IN_PC), 
 			.PC_SELECT(PC_SELECT), 
 			.isEqual(isEqual)
 		);
 	 
-	 
+		
+		
+		
+		
+forward_RD1 forward_RD1(
+	.ID_Instr_o(ID_Instr_o), 
+    .EX_Instr_o(EX_Instr_o), 
+    .MEM_Instr_o(MEM_Instr_o), 
+    .WB_Instr_o(WB_Instr_o), 
+    .MEM_RegAddr_o(MEM_RegAddr_o), 
+    .WB_RegAddr_o(WB_RegAddr_o), 
+    .D_RD1(D_RD1), 
+	 .D_RD2(D_RD2),
+    .MEM_ALUout_o(MEM_ALUout_o), 
+    .W_RegData(W_RegData), 
+    .W_RegWrite(W_RegWrite), 
+    .MEM_PC8_o(MEM_PC8_o), 
+    .D_RD1_forward(D_RD1_forward),
+	 .D_RD2_forward(D_RD2_forward)
+    );
 		
 endmodule

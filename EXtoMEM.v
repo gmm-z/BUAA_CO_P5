@@ -40,6 +40,7 @@ module EXtoMEM(
 
 		initial begin
 			MEM_Instr_o <= 0;
+			MEM_RegAddr_o <= 0;
 		end
 
 		always@(posedge clk)begin

@@ -42,6 +42,7 @@ module IDtoEX(
 	
 		initial begin
 			EX_Instr_o <= 0;
+			EX_RegAddr_o <= 0;
 		end
 		
 		always@(posedge clk)begin
