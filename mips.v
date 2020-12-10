@@ -76,6 +76,7 @@ module mips(clk,reset);
 		wire W_RegWrite;
 		wire [4:0]WB_RegAddr_o;
 		
+		wire [31:0]WB_PC_o;
 		grf grf (
 			.clk(clk), 
 			.reset(reset), 
@@ -84,7 +85,7 @@ module mips(clk,reset);
 			.RegAddr(WB_RegAddr_o), 
 			.RegData(W_RegData), 
 			.RegWrite(W_RegWrite), 
-			.PC(ID_PC_o), 
+			.PC(WB_PC_o), 
 			.RD1(D_RD1), 
 			.RD2(D_RD2)
 		);
@@ -292,7 +293,6 @@ module mips(clk,reset);
 		wire [4:0]MEM_RegAddr_i;
 	
 		wire [31:0]WB_Instr_o;
-		wire [31:0]WB_PC_o;
 		wire [31:0]WB_PC4_o;
 		wire [31:0] WB_PC8_o;
 		wire [31:0] WB_ALUout_o;
