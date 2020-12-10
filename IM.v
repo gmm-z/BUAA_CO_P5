@@ -24,7 +24,7 @@ module IM(
     );
 		reg [31:0] Instruction [1023:0];
 		// 32bit ¡Á 1024£¬1024¸öÖ¸Áî
-		
+
 		initial begin
 			$readmemh("code.txt",Instruction);
 		end
