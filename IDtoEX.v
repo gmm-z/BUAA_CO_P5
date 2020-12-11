@@ -30,6 +30,8 @@ module IDtoEX(
 		input [31:0] ID_RD2_i,
 		input [31:0] ID_EXTout_i,
 		input [4:0] ID_RegAddr_i,
+		input [1:0]ID_Tnew_i,
+		output reg[1:0]EX_Tnew_o,
 		output reg[4:0] EX_RegAddr_o,
 		output reg[31:0] EX_Instr_o,
 		output reg[31:0] EX_PC_o,
@@ -50,6 +52,7 @@ module IDtoEX(
 				EX_Instr_o <= 0;
 			end
 			else if(en) begin
+				EX_Tnew_o <= ID_Tnew_i;
 				EX_RegAddr_o <= ID_RegAddr_i;
 				EX_Instr_o <= ID_Instr_i;
 				EX_PC_o <= ID_PC_i;
@@ -58,6 +61,16 @@ module IDtoEX(
 				EX_RD1_o <= ID_RD1_i;
 				EX_RD2_o <= ID_RD2_i;
 				EX_EXTout_o <= ID_EXTout_i;
+			end else begin
+				EX_Tnew_o <= 0;
+				EX_RegAddr_o <= 0;
+				EX_Instr_o <= 0;
+				EX_PC_o <= 0;
+				EX_PC4_o <= 0;
+				EX_PC8_o <= 0;
+				EX_RD1_o <= 0;
+				EX_RD2_o <= 0;
+				EX_EXTout_o <= 0;
 			end
 		end
 

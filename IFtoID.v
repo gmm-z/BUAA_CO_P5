@@ -43,6 +43,8 @@ module IFtoID(
 			ID_Instr_o <= IF_Instr_i;
 			ID_PC4_o <= IF_PC_i + 4;
 			ID_PC8_o <= IF_PC_i + 8;
+		end else begin
+			
 		end
 	 end
 endmodule

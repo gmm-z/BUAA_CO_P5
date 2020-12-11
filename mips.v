@@ -45,10 +45,11 @@ module mips(clk,reset);
 			.Instr(IF_Instr_i)
 		);
 		
+		wire en_IFtoID;
 		IFtoID IFtoID (
 			.clk(clk), 
 			.reset(reset), 
-			.en(en), 
+			.en(en_IFtoID), 
 			.IF_Instr_i(IF_Instr_i), 
 			.IF_PC_i(IF_PC_i),  
 			.ID_PC_o(ID_PC_o),
@@ -151,10 +152,14 @@ module mips(clk,reset);
 			 .isEqual(isEqual)
 		 );
 		 
+		wire [1:0]ID_Tnew_i;
+		wire [1:0]EX_Tnew_o;
+		
+		wire en_IDtoEX;
 		IDtoEX IDtoEX (
 			.clk(clk), 
 			.reset(reset), 
-			.en(en), 
+			.en(en_IDtoEX), 
 			 .ID_Instr_i(ID_Instr_i), 
 			 .ID_PC_i(ID_PC_i), 
 			 .ID_PC4_i(ID_PC4_i), 
@@ -163,6 +168,8 @@ module mips(clk,reset);
 			 .ID_RD2_i(ID_RD2_i), 
 			 .ID_EXTout_i(ID_EXTout_i), 
 			 .ID_RegAddr_i(ID_RegAddr_i), 
+			 .ID_Tnew_i(ID_Tnew_i),
+			 .EX_Tnew_o(EX_Tnew_o),
 			 .EX_RegAddr_o(EX_RegAddr_o), 
 			 .EX_Instr_o(EX_Instr_o), 
 			 .EX_PC_o(EX_PC_o), 
@@ -241,6 +248,11 @@ module mips(clk,reset);
 		assign EX_RT_i = EX_RD2_o_forward;
 		assign EX_RegAddr_i = EX_RegAddr_o;
 		
+		
+		wire [1:0] EX_Tnew_i;
+		assign EX_Tnew_i = (EX_Tnew_o == 2'b0)? 2'b0 : EX_Tnew_o - 1;
+		wire [1:0] MEM_Tnew_o;
+		
 		EXtoMEM EXtoMEM (
 			 .clk(clk), 
 			 .reset(reset), 
@@ -252,6 +264,8 @@ module mips(clk,reset);
 			 .EX_ALUout_i(EX_ALUout_i), 
 			 .EX_RT_i(EX_RT_i), 
 			 .EX_RegAddr_i(EX_RegAddr_i),
+			 .EX_Tnew_i(EX_Tnew_i),
+			 .MEM_Tnew_o(MEM_Tnew_o),
 			 .MEM_RegAddr_o(MEM_RegAddr_o),
 			 .MEM_Instr_o(MEM_Instr_o), 
 			 .MEM_PC_o(MEM_PC_o), 
@@ -364,7 +378,7 @@ module mips(clk,reset);
 		wire [31:0]PC_JAL;
 		assign PC_JAL = {ID_PC_o[31:28], ID_Instr_o[25:0],2'b00};
 	
-		
+		wire en_PC;
 		nPC nPC (
 			.PC4(IF_PC_i_4), 
 			.PC_BEQ(PC_BEQ), 
@@ -372,14 +386,16 @@ module mips(clk,reset);
 			.RD1(D_RD1_forward), 
 			.IN_PC(IN_PC), 
 			.PC_SELECT(PC_SELECT), 
-			.isEqual(isEqual)
+			.isEqual(isEqual),
+			.en(en_PC),
+			.PC(IF_PC_i)
 		);
 	 
 		
 		
 		
 		
-forward_RD1 forward_RD1(
+forward forward(
 	.ID_Instr_o(ID_Instr_o), 
     .EX_Instr_o(EX_Instr_o), 
     .MEM_Instr_o(MEM_Instr_o), 
@@ -400,6 +416,28 @@ forward_RD1 forward_RD1(
 	 .EX_RD1_o_forward(EX_RD1_o_forward),
 	 .EX_RD2_o_forward(EX_RD2_o_forward),
 	 .M_MemData_forward(M_MemData_forward)
+    );
+		
+		wire [1:0] Tuse_rs;
+		wire [1:0] Tuse_rt;
+		// ID_Tnew_i;
+		
+		Stall Stall (
+    .ID_Instr_o(ID_Instr_o), 
+    .Tuse_rs(Tuse_rs), 
+    .Tuse_rt(Tuse_rt), 
+    .ID_Tnew_i(ID_Tnew_i), 
+    .EX_Tnew_o(EX_Tnew_o), 
+    .MEM_Tnew_o(MEM_Tnew_o), 
+    .D_RD1_forward(D_RD1_forward), 
+    .D_RD2_forward(D_RD2_forward), 
+    .D_RD1(D_RD1), 
+    .D_RD2(D_RD2), 
+    .en_PC(en_PC), 
+    .en_IFtoID(en_IFtoID), 
+    .en_IDtoEX(en_IDtoEX), 
+    .MEM_RegAddr_o(MEM_RegAddr_o), 
+    .EX_RegAddr_o(EX_RegAddr_o)
     );
 		
 endmodule

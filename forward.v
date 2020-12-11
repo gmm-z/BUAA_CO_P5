@@ -18,7 +18,7 @@
 // Additional Comments: 
 //
 //////////////////////////////////////////////////////////////////////////////////
-module forward_RD1(
+module forward(
 		input [31:0]ID_Instr_o,
 		input [31:0]EX_Instr_o,
 		input [31:0]MEM_Instr_o,

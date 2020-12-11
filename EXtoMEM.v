@@ -29,6 +29,8 @@ module EXtoMEM(
 		input [31:0] EX_ALUout_i,
 		input [31:0] EX_RT_i,
 		input [4:0] EX_RegAddr_i,
+		input [1:0] EX_Tnew_i,
+		output reg[1:0] MEM_Tnew_o,
 		output reg[4:0] MEM_RegAddr_o,
 		output reg[31:0] MEM_Instr_o,
 		output reg[31:0] MEM_PC_o,
@@ -48,6 +50,7 @@ module EXtoMEM(
 				MEM_Instr_o <= 0;
 			end
 			else if(en)begin
+				MEM_Tnew_o <= EX_Tnew_i;
 				MEM_RegAddr_o <= EX_RegAddr_i;
 				MEM_Instr_o <= EX_Instr_i;
 				MEM_PC_o <= EX_PC_i;
